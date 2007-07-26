@@ -18,7 +18,7 @@
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		unixODBC
 Version: 	2.2.12
-Release:	%mkrel 2
+Release:	%mkrel 3
 
 Source: 	http://www.unixodbc.org/%{name}-%{version}.tar.bz2
 Source2:	odbcinst.ini
@@ -27,24 +27,28 @@ Source4:	qt-attic2.tar.bz2
 Patch1:		unixodbc-fix-compile-with-qt-3.1.1.patch
 Patch2:		unixodbc-fix-compile-with-qt-3.1.1.patch2
 Patch3:		unixODBC-2.2.12-libtool.patch
+Patch4:     unixodbc-fix-external-ltdl.patch
 
 Group: 		Databases
 License: 	LGPL
 URL: 		http://www.unixODBC.org/
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires:	autoconf2.5 >= 2.52
-# don't take away readline, we do want to build unixODBC with readline.
-BuildRequires:  bison flex readline-devel chrpath
-BuildRequires:	gnome-common dos2unix
-#BuildRequires:	automake1.7
-BuildRequires:	libltdl-devel
+BuildRequires: autoconf2.5 >= 2.52
+BuildRequires: autoconf
+BuildRequires: bison 
+BuildRequires: flex 
+BuildRequires: readline-devel 
+BuildRequires: chrpath
+BuildRequires: byacc
+BuildRequires: dos2unix 
+BuildRequires: libltdl-devel
+BuildRequires: pth-devel
 %if %{qt_gui}
-BuildRequires:  qt3-devel
-# (sb) configure gets confused
-BuildConflicts:	qt4-devel
+BuildRequires: qt3-devel
 %endif
 %if %gtk_gui
-BuildRequires:	gnome-libs-devel
+BuildRequires: gnome-common
+BuildRequires: gnome-libs-devel
 %endif
 
 %description
@@ -85,7 +89,7 @@ This has been split off from the main unixODBC libraries so you don't
 require X11 and qt if you wish to use unixODBC.
 
 %package -n	%{libname}-devel
-Summary: 	Includes and static libraries for ODBC development
+Summary: 	Includes and shared libraries for ODBC development
 Group: 		Development/Other
 Requires: 	%{libname} = %{version}
 Provides:	%{name}-devel lib%{name}-devel %{old_libname}-devel
@@ -93,7 +97,18 @@ Obsoletes:	%{name}-devel %{old_libname}-devel
 
 %description -n	%{libname}-devel
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
-This package contains the include files and static libraries for development.
+This package contains the include files and shared libraries for development.
+
+%package -n	%{libname}-static-devel
+Summary: 	Static libraries for ODBC development
+Group: 		Development/Other
+Requires: 	%{libname}-devel = %{version}
+Provides:	%{name}-static-devel lib%{name}-static-devel %{old_libname}-static-devel
+Obsoletes:	%{name}-devel %{old_libname}-devel
+
+%description -n	%{libname}-static-devel
+unixODBC aims to provide a complete ODBC solution for the Linux platform.
+This package contains static libraries for development.
 
 %package	gui-qt
 Summary: 	ODBC configurator, Data Source browser and ODBC test tool based on Qt
@@ -123,24 +138,28 @@ This package contains one GTK+ based GUI program for unixODBC: gODBCConfig
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1 -b .libtool
-autoconf
+%patch4 -p1 -b .ltdl
+
 
 %build
-%if %{qt_gui}
-# QTDIR is always /usr/lib/qt3 because it has /lib{,64} in it too
-export QTDIR=%{_prefix}/lib/qt3
-# Search for qt/kde libraries in the right directories (avoid patch)
-# NOTE: please don't regenerate configure scripts below
-perl -pi -e "s@/lib(\"|\b[^/])@/%_lib\1@g if /(kde|qt)_(libdirs|libraries)=/" configure
-sed -i 's|qt_tree/lib/libqt|qt_tree/%_lib/libqt|g' configure
-%else
-unset QTDIR
-%endif
-
 export EGREP='grep -E'
-libtoolize --copy --force
-%configure2_5x --enable-static
-make
+
+# we don't need run a bogus uselless configure
+rm -rf libltdl
+
+aclocal && libtoolize -c -f && automake -a && autoconf
+
+%configure2_5x \
+    %if %{qt_gui}
+    --with-qt-dir=%qt3dir \
+    --with-qt-includes=%qt3include \
+    --with-qt-libraries=%qt3lib \
+    --with-qt-programs=%qt3dir/bin \
+    %endif
+    --enable-ltdllib=yes \
+    --enable-static
+
+%make
 
 %install
 rm -fr %buildroot
@@ -396,8 +415,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc doc/
 %{_includedir}/*
 %{_libdir}/lib*.so
-%{_libdir}/*.a
 %{_libdir}/*.la
+
+%files -n %{libname}-static-devel 
+%defattr(-,root,root)
+%{_libdir}/*.a
 
 %if %{qt_gui}
 %files -n %{libname}-qt
