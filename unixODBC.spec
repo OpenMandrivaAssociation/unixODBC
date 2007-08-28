@@ -284,7 +284,6 @@ EOF
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/applications
 cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-ODBCConfig.desktop << EOF
 [Desktop Entry]
-Encoding=UTF-8
 Name=ODBCConfig
 Comment=ODBC Configuration Tool
 Exec=%{_bindir}/ODBCConfig
@@ -297,7 +296,6 @@ EOF
 
 cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-ODBCConfig-root.desktop << EOF
 [Desktop Entry]
-Encoding=UTF-8
 Name=ODBConfig (Root User)
 Comment=ODBC Configuration Tool (Root User)
 Exec=%{_bindir}/ODBCConfig-root
@@ -310,7 +308,6 @@ EOF
 
 cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-DataManager.desktop << EOF
 [Desktop Entry]
-Encoding=UTF-8
 Name=DataManager
 Comment=ODBC Data Management Tool
 Exec=%{_bindir}/DataManager
@@ -323,7 +320,6 @@ EOF
 
 cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-odbctest.desktop << EOF
 [Desktop Entry]
-Encoding=UTF-8
 Name=ODBCTest
 Comment=ODBC Test Tool
 Exec=%{_bindir}/odbctest
