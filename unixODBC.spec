@@ -5,20 +5,14 @@
 %define old_libname %mklibname %{name} 2
 
 %define qt_gui  1
+%{?_without_qt: %{expand: %%global qt_gui 0}}
 %define gtk_gui 0
-
-# Allow --with[out] <feature> at rpm command line build
-%{expand: %{?_without_QT:	%%global qt_gui 0}}
-%{expand: %{?_without_GTK:	%%global gtk_gui 0}}
-
-# Allow --without <front-end> at rpm command line build
-%{expand: %{?_with_QT:		%%global qt_gui 1}}
-%{expand: %{?_with_GTK:		%%global gtk_gui 1}}
+%{?_with_gtk: %{expand: %%global gtk_gui 1}}
 
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		unixODBC
 Version: 	2.2.12
-Release:	%mkrel 3
+Release:	%mkrel 4
 
 Source: 	http://www.unixodbc.org/%{name}-%{version}.tar.bz2
 Source2:	odbcinst.ini
@@ -412,6 +406,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*
 %{_libdir}/lib*.so
 %{_libdir}/*.la
+# We don't want require qt3-devel everytime for a lib not used for devel
+# This allow use unixODBC enables qt4 compile against /usr instead of old chroot
+%exclude %{_libdir}/lib*instQ.so
+%exclude %{_libdir}/lib*instQ.la
 
 %files -n %{libname}-static-devel 
 %defattr(-,root,root)
