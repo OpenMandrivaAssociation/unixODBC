@@ -281,7 +281,7 @@ cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-ODBCConfig.desktop << EOF
 Name=ODBCConfig
 Comment=ODBC Configuration Tool
 Exec=%{_bindir}/ODBCConfig
-Icon=databases_section.png
+Icon=databases_section
 Terminal=false
 Type=Application
 StartupNotify=true
@@ -293,7 +293,7 @@ cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-ODBCConfig-root.desktop <
 Name=ODBConfig (Root User)
 Comment=ODBC Configuration Tool (Root User)
 Exec=%{_bindir}/ODBCConfig-root
-Icon=databases_section.png
+Icon=databases_section
 Terminal=false
 Type=Application
 StartupNotify=true
@@ -305,7 +305,7 @@ cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-DataManager.desktop << EO
 Name=DataManager
 Comment=ODBC Data Management Tool
 Exec=%{_bindir}/DataManager
-Icon=databases_section.png
+Icon=databases_section
 Terminal=false
 Type=Application
 StartupNotify=true
@@ -317,7 +317,7 @@ cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-odbctest.desktop << EOF
 Name=ODBCTest
 Comment=ODBC Test Tool
 Exec=%{_bindir}/odbctest
-Icon=databases_section.png
+Icon=databases_section
 Terminal=false
 Type=Application
 StartupNotify=true
