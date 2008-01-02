@@ -26,6 +26,7 @@ Patch4:     unixodbc-fix-external-ltdl.patch
 Group: 		Databases
 License: 	LGPL
 URL: 		http://www.unixODBC.org/
+BuildRoot: 	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires: autoconf2.5 >= 2.52
 BuildRequires: autoconf
 BuildRequires: bison 
