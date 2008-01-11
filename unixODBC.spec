@@ -220,7 +220,6 @@ chrpath -d $RPM_BUILD_ROOT%{_bindir}/*
 chrpath -d $RPM_BUILD_ROOT%{_libdir}/*.0.0
 
 # Menu entries
-install -d $RPM_BUILD_ROOT%{_menudir}
 
 # setup links for consolehelpper support to allow root System DSN config
 install -d $RPM_BUILD_ROOT%{_sbindir}
@@ -237,43 +236,6 @@ popd
 
 %if %{qt_gui}
 # ODBCConfig
-cat << EOF > $RPM_BUILD_ROOT%{_menudir}/unixODBC-gui-qt
-?package(%{name}-gui-qt): \
-needs="x11" \
-section="More Applications/Databases" \
-longtitle="ODBCConfig" \
-title="ODBCConfig" \
-icon="databases_section.png" \
-command="ODBCConfig" \
-xdg="true"
-
-?package(%{name}-gui-qt): \
-needs="x11" \
-section="More Applications/Databases" \
-longtitle="ODBCConfig (root user)" \
-title="ODBCConfig (root user)" \
-icon="databases_section.png" \
-command="ODBCConfig-root" \
-xdg="true"
-
-?package(%{name}-gui-qt): \
-needs="x11" \
-section="More Applications/Databases" \
-longtitle="DataManager" \
-title="DataManager" \
-icon="databases_section.png" \
-command="DataManager" \
-xdg="true"
-
-?package(%{name}-gui-qt): \
-needs="x11" \
-section="More Applications/Databases" \
-longtitle="ODBCtest" \
-title="ODBCtest" \
-icon="databases_section.png" \
-command="odbctest" \
-xdg="true"
-EOF
 
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/applications
 cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-ODBCConfig.desktop << EOF
@@ -328,25 +290,6 @@ EOF
 %if %gtk_gui
 # gODBCConfig
 # Put capital G in title and longtitle to shut rpmlint warnings
-cat << EOF > $RPM_BUILD_ROOT%{_menudir}/unixODBC-gui-gtk
-?package(%{name}-gui-gtk): \
-needs="x11" \
-section="More Applications/Databases" \
-longtitle="GODBCConfig" \
-title="GODBCConfig" \
-icon="databases_section.png" \
-command="gODBCConfig" 
-xdg="true"
-
-?package(%{name}-gui-gtk): \
-needs="x11" \
-section="More Applications/Databases" \
-longtitle="GODBCConfig (root user)" \
-title="GODBCConfig (root user)" \
-icon="databases_section.png" \
-command="gODBCConfig-root" 
-xdg="true"
-EOF
 %endif
 
 find doc -name Makefile\* -exec rm {} \;
@@ -427,7 +370,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/ODBCConfig*
 %{_sbindir}/ODBCConfig*
 %{_bindir}/odbctest
-%{_menudir}/unixODBC-gui-qt
 %{_datadir}/applications/mandriva-ODBC*.desktop
 %{_datadir}/applications/mandriva-odbctest.desktop
 %{_datadir}/applications/mandriva-DataManager.desktop
@@ -443,7 +385,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc NEWS README AUTHORS
 %{_bindir}/gODBCConfig*
 %{_sbindir}/gODBCConfig*
-%{_menudir}/unixODBC-gui-gtk
 %{_datadir}/pixmaps/*
 %endif
 
