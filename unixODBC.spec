@@ -301,17 +301,29 @@ rm -rf $RPM_BUILD_ROOT
 #rm -f libodbc-libs.filelist
 
 %if %gtk_gui
+%if %mdkversion < 200900
 %post -n %{libgtkgui_name} -p /sbin/ldconfig
+%endif
+%if %mdkversion < 200900
 %postun -n %{libgtkgui_name} -p /sbin/ldconfig
+%endif
 %endif
 
 %if %{qt_gui}
+%if %mdkversion < 200900
 %post -n %{libname}-qt -p /sbin/ldconfig
+%endif
+%if %mdkversion < 200900
 %postun -n %{libname}-qt -p /sbin/ldconfig
 %endif
+%endif
 
+%if %mdkversion < 200900
 %post -n %{libname} -p /sbin/ldconfig
+%endif
+%if %mdkversion < 200900
 %postun -n %{libname} -p /sbin/ldconfig
+%endif
 
 %if %{qt_gui}
 %post gui-qt
