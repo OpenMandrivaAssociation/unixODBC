@@ -326,19 +326,27 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %if %{qt_gui}
+%if %mdkversion < 200900
 %post gui-qt
 %{update_menus}
+%endif
 
+%if %mdkversion < 200900
 %postun gui-qt
 %{clean_menus}
 %endif
+%endif
 
 %if %gtk_gui
+%if %mdkversion < 200900
 %post gui-gtk
 %{update_menus}
+%endif
 
+%if %mdkversion < 200900
 %postun gui-gtk
 %{clean_menus}
+%endif
 %endif
 
 
