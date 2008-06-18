@@ -12,7 +12,7 @@
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		unixODBC
 Version: 	2.2.12
-Release:	%mkrel 4
+Release:	%mkrel 5
 
 Source: 	http://www.unixodbc.org/%{name}-%{version}.tar.bz2
 Source2:	odbcinst.ini
