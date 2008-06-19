@@ -4,7 +4,7 @@
 %define libgtkgui_name	%mklibname gtkodbcconfig %{libgtkgui_major}
 %define old_libname %mklibname %{name} 2
 
-%define qt_gui  0
+%define qt_gui  1
 %{?_without_qt: %{expand: %%global qt_gui 0}}
 %define gtk_gui 0
 %{?_with_gtk: %{expand: %%global gtk_gui 1}}
@@ -12,7 +12,7 @@
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		unixODBC
 Version: 	2.2.12
-Release:	%mkrel 6
+Release:	%mkrel 7
 Source: 	http://www.unixodbc.org/%{name}-%{version}.tar.bz2
 Source2:	odbcinst.ini
 Source3:	qt-attic.tar.bz2
