@@ -12,7 +12,7 @@
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		unixODBC
 Version: 	2.2.12
-Release:	%mkrel 7
+Release:	%mkrel 8
 Source: 	http://www.unixodbc.org/%{name}-%{version}.tar.bz2
 Source2:	odbcinst.ini
 Source3:	qt-attic.tar.bz2
@@ -21,6 +21,7 @@ Patch1:		unixodbc-fix-compile-with-qt-3.1.1.patch
 Patch2:		unixodbc-fix-compile-with-qt-3.1.1.patch2
 Patch3:		unixODBC-2.2.12-libtool.patch
 Patch4:		unixodbc-fix-external-ltdl.patch
+Patch5:		unixODBC-qt3_fix.diff
 Group: 		Databases
 License: 	LGPL
 URL: 		http://www.unixODBC.org/
@@ -137,6 +138,7 @@ This package contains one GTK+ based GUI program for unixODBC: gODBCConfig
 %patch2 -p1
 %patch3 -p1 -b .libtool
 %patch4 -p1 -b .ltdl
+%patch5 -p0
 
 %build
 export EGREP='grep -E'
@@ -147,13 +149,16 @@ rm -rf libltdl
 libtoolize --copy --force; aclocal; automake -a; autoconf
 
 %if %{qt_gui}
-export MOC=%{_prefix}/lib/qt4/bin/moc
-export UIC=%{_prefix}/lib/qt4/bin/uic
+export MOC=%{_prefix}/lib/qt3/bin/moc
+export UIC=%{_prefix}/lib/qt3/bin/uic
 %endif
 
 %configure2_5x \
 %if %{qt_gui}
-    --with-qt-dir=%{_prefix}/lib/qt4 \
+    --with-qt-dir=%qt3dir \
+    --with-qt-includes=%qt3include \
+    --with-qt-libraries=%qt3lib \
+    --with-qt-programs=%qt3dir/bin \
 %else
     --disable-gui \
 %endif
