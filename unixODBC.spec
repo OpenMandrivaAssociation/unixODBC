@@ -4,16 +4,20 @@
 %define libgtkgui_name	%mklibname gtkodbcconfig %{libgtkgui_major}
 %define old_libname %mklibname %{name} 2
 
-%define qt_gui  1
+%define qt_gui  0
 %{?_without_qt: %{expand: %%global qt_gui 0}}
+
 %define gtk_gui 0
 %{?_with_gtk: %{expand: %%global gtk_gui 1}}
 
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		unixODBC
-Version: 	2.2.12
-Release:	%mkrel 9
-Source: 	http://www.unixodbc.org/%{name}-%{version}.tar.bz2
+Version: 	2.2.14
+Release:	%mkrel 1
+Group: 		Databases
+License: 	LGPL
+URL: 		http://www.unixODBC.org/
+Source0:	http://www.unixodbc.org/%{name}-%{version}.tar.gz
 Source2:	odbcinst.ini
 Source3:	qt-attic.tar.bz2
 Source4:	qt-attic2.tar.bz2
@@ -21,9 +25,7 @@ Patch1:		unixodbc-fix-compile-with-qt-3.1.1.patch
 Patch2:		unixodbc-fix-compile-with-qt-3.1.1.patch2
 Patch3:		unixODBC-2.2.12-libtool.patch
 Patch4:		unixodbc-fix-external-ltdl.patch
-Group: 		Databases
-License: 	LGPL
-URL: 		http://www.unixODBC.org/
+Patch5:		unixODBC-2.2.14-format_not_a_string_literal_and_no_format_arguments.diff
 BuildRequires:	autoconf2.5 >= 2.52
 BuildRequires:	autoconf
 BuildRequires:	bison 
@@ -35,7 +37,7 @@ BuildRequires:	dos2unix
 BuildRequires:	libltdl-devel
 BuildRequires:	pth-devel
 %if %{qt_gui}
-BuildRequires:	qt3-devel
+BuildRequires:	qt4-devel
 %endif
 %if %{gtk_gui}
 BuildRequires:	gnome-common
@@ -137,6 +139,7 @@ This package contains one GTK+ based GUI program for unixODBC: gODBCConfig
 %patch2 -p1
 %patch3 -p1 -b .libtool
 %patch4 -p1 -b .ltdl
+%patch5 -p1 -b .format_not_a_string_literal_and_no_format_arguments
 
 %build
 export EGREP='grep -E'
@@ -147,15 +150,15 @@ rm -rf libltdl
 libtoolize --copy --force; aclocal; automake -a; autoconf
 
 %if %{qt_gui}
-export MOC=%{qt3bin}/moc
-export UIC=%{qt3bin}/uic
+export MOC=%{qt4bin}/moc
+export UIC=%{qt4bin}/uic
 %endif
 
 %configure2_5x \
 %if %{qt_gui}
-    --with-qt-dir=%qt3dir \
-    --with-qt-includes=%qt3include \
-    --with-qt-programs=%qt3bin \
+    --with-qt-dir=%qt4dir \
+    --with-qt-includes=%qt4include \
+    --with-qt-programs=%qt4bin \
 %else
     --disable-gui \
 %endif
@@ -380,8 +383,8 @@ rm -rf %{buildroot}
 %{_libdir}/lib*.so
 %{_libdir}/*.la
 %if %{qt_gui}
-%exclude %{_libdir}/lib*instQ.so
-%exclude %{_libdir}/lib*instQ.la
+%exclude %{_libdir}/lib*instQ4.so
+%exclude %{_libdir}/lib*instQ4.la
 %endif
 
 %files -n %{libname}-static-devel 
@@ -391,7 +394,7 @@ rm -rf %{buildroot}
 %if %{qt_gui}
 %files -n %{libname}-qt
 %defattr(-, root, root)
-%{_libdir}/lib*instQ.so.*
+%{_libdir}/lib*instQ4.so.*
 
 %files gui-qt
 %defattr(-, root, root)
