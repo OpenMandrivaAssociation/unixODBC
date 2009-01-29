@@ -1,10 +1,12 @@
 %define LIBMAJ 	1
 %define libname %mklibname %name %LIBMAJ
+%define develname %mklibname %name -d
+%define sdevelname %mklibname %name -d -s
 %define libgtkgui_major	0
 %define libgtkgui_name	%mklibname gtkodbcconfig %{libgtkgui_major}
 %define old_libname %mklibname %{name} 2
 
-%define qt_gui  0
+%define qt_gui  1
 %{?_without_qt: %{expand: %%global qt_gui 0}}
 
 %define gtk_gui 0
@@ -13,9 +15,9 @@
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		unixODBC
 Version: 	2.2.14
-Release:	%mkrel 2
+Release:	%mkrel 3
 Group: 		Databases
-License: 	LGPL
+License: 	GPLv2+ and LGPLv2+
 URL: 		http://www.unixODBC.org/
 Source0:	http://www.unixodbc.org/%{name}-%{version}.tar.gz
 Source2:	odbcinst.ini
@@ -26,6 +28,7 @@ Patch2:		unixodbc-fix-compile-with-qt-3.1.1.patch2
 Patch3:		unixODBC-2.2.12-libtool.patch
 Patch4:		unixodbc-fix-external-ltdl.patch
 Patch5:		unixODBC-2.2.14-format_not_a_string_literal_and_no_format_arguments.diff
+Patch6:		unixodbc-fix-2.2.14-fix-qt-detect.patch
 BuildRequires:	autoconf2.5 >= 2.52
 BuildRequires:	autoconf
 BuildRequires:	bison 
@@ -83,25 +86,29 @@ This has been split off from the main unixODBC libraries so you don't
 require X11 and qt if you wish to use unixODBC.
 %endif
 
-%package -n	%{libname}-devel
+%package -n	%{develname}
 Summary: 	Includes and shared libraries for ODBC development
 Group: 		Development/Other
 Requires: 	%{libname} = %{version}
-Provides:	%{name}-devel lib%{name}-devel %{old_libname}-devel
-Obsoletes:	%{name}-devel %{old_libname}-devel
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
+Obsoletes:	%{old_libname}-devel
+Obsoletes:	%{_lib}unixODBC1-devel < %{version}-%{release}
 
-%description -n	%{libname}-devel
+%description -n	%{develname}
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
 This package contains the include files and shared libraries for development.
 
-%package -n	%{libname}-static-devel
+%package -n	%{sdevelname}
 Summary: 	Static libraries for ODBC development
 Group: 		Development/Other
-Requires: 	%{libname}-devel = %{version}
-Provides:	%{name}-static-devel lib%{name}-static-devel %{old_libname}-static-devel
-Obsoletes:	%{name}-devel %{old_libname}-devel
+Requires: 	%{develname} = %{version}-%{release}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Provides:	lib%{name}-static-devel = %{version}-%{release}
+Obsoletes:	%{name}-devel %{old_libname}-static-devel
+Obsoletes:	%{_lib}unixODBC1-static-devel < %{version}-%{release}
 
-%description -n	%{libname}-static-devel
+%description -n	%{sdevelname}
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
 This package contains static libraries for development.
 
@@ -140,6 +147,7 @@ This package contains one GTK+ based GUI program for unixODBC: gODBCConfig
 %patch3 -p1 -b .libtool
 %patch4 -p1 -b .ltdl
 %patch5 -p1 -b .format_not_a_string_literal_and_no_format_arguments
+%patch6 -p0 -b .qt
 
 %build
 export EGREP='grep -E'
@@ -157,6 +165,7 @@ export UIC=%{qt4bin}/uic
 %configure2_5x \
 %if %{qt_gui}
     --with-qt-dir=%qt4dir \
+    --with-qt-libraries=%qt4lib \
     --with-qt-includes=%qt4include \
     --with-qt-programs=%qt4bin \
 %else
@@ -275,29 +284,6 @@ StartupNotify=true
 Categories=Database;Office;X-MandrivaLinux-MoreApplications-Databases;
 EOF
 
-cat > %{buildroot}%{_datadir}/applications/mandriva-DataManager.desktop << EOF
-[Desktop Entry]
-Name=DataManager
-Comment=ODBC Data Management Tool
-Exec=%{_bindir}/DataManager
-Icon=databases_section
-Terminal=false
-Type=Application
-StartupNotify=true
-Categories=Database;Office;X-MandrivaLinux-MoreApplications-Databases;
-EOF
-
-cat > %{buildroot}%{_datadir}/applications/mandriva-odbctest.desktop << EOF
-[Desktop Entry]
-Name=ODBCTest
-Comment=ODBC Test Tool
-Exec=%{_bindir}/odbctest
-Icon=databases_section
-Terminal=false
-Type=Application
-StartupNotify=true
-Categories=Database;Office;X-MandrivaLinux-MoreApplications-Databases;
-EOF
 %endif
 
 %if %{gtk_gui}
@@ -376,7 +362,7 @@ rm -rf %{buildroot}
 %files -n %{libname} -f libodbc-libs.filelist
 %defattr(-,root, root)
 
-%files -n %{libname}-devel 
+%files -n %{develname}
 %defattr(-,root,root)
 %doc doc/
 %{_includedir}/*
@@ -387,7 +373,7 @@ rm -rf %{buildroot}
 %exclude %{_libdir}/lib*instQ4.la
 %endif
 
-%files -n %{libname}-static-devel 
+%files -n %{sdevelname}
 %defattr(-,root,root)
 %{_libdir}/*.a
 
@@ -398,14 +384,9 @@ rm -rf %{buildroot}
 
 %files gui-qt
 %defattr(-, root, root)
-%{_bindir}/DataManager
-%{_bindir}/DataManagerII
 %{_bindir}/ODBCConfig*
 %{_sbindir}/ODBCConfig*
-%{_bindir}/odbctest
 %{_datadir}/applications/mandriva-ODBC*.desktop
-%{_datadir}/applications/mandriva-odbctest.desktop
-%{_datadir}/applications/mandriva-DataManager.desktop
 %endif
 
 %if %{gtk_gui}
