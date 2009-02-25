@@ -15,7 +15,7 @@
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		unixODBC
 Version: 	2.2.14
-Release:	%mkrel 3
+Release:	%mkrel 4
 Group: 		Databases
 License: 	GPLv2+ and LGPLv2+
 URL: 		http://www.unixODBC.org/
