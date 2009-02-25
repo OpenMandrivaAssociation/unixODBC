@@ -6,7 +6,7 @@
 %define libgtkgui_name	%mklibname gtkodbcconfig %{libgtkgui_major}
 %define old_libname %mklibname %{name} 2
 
-%define qt_gui  1
+%define qt_gui  0
 %{?_without_qt: %{expand: %%global qt_gui 0}}
 
 %define gtk_gui 0
