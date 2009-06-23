@@ -12,11 +12,11 @@
 %define gtk_gui 0
 %{?_with_gtk: %{expand: %%global gtk_gui 1}}
 
-Summary: 	Unix ODBC driver manager and database drivers
 Name: 		unixODBC
 Version: 	2.2.14
-Release:	%mkrel 4
+Release:	%mkrel 5
 Group: 		Databases
+Summary: 	Unix ODBC driver manager and database drivers
 License: 	GPLv2+ and LGPLv2+
 URL: 		http://www.unixODBC.org/
 Source0:	http://www.unixodbc.org/%{name}-%{version}.tar.gz
@@ -193,6 +193,10 @@ export EGREP='grep -E'
 install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/
 perl -pi -e "s,/lib/,/%{_lib}/," %{buildroot}%{_sysconfdir}/odbcinst.ini
 
+
+# Multiarch fixes
+%multiarch_binaries %buildroot/%_bindir/odbc_config
+
 # (sb) use the versioned symlinks, rather than the .so's, this should 
 # eliminate the issues with requiring -devel packages or having 
 # to override auto requires
@@ -226,20 +230,6 @@ cd ..
 # by anyone ATM?
 echo "%defattr(-,root,root)" > libodbc-libs.filelist
 find %{buildroot}%_libdir -name '*.so.*' | sed -e "s|%{buildroot}||g" | grep -v -e gtk -e instQ >> libodbc-libs.filelist
-
-# Uncomment the following if you wish to split off development libraries
-# as well so development with ODBC does not require X11 libraries installed.
-# Also you need to add in the appropriate description and filelist.
-if 0; then
-
-echo "%defattr(-, root, root)" > libodbc-devellibs.filelist
-find %{buildroot}%{_libdir} -name '*.so' -o -name '*.la' -o -name '*.a' | sed -e "s|%{buildroot}||g" | grep -v -e gtk -e instQ >> libodbc-devellibs.filelist
-
-fi
-
-#rpaths on x86, x86_64
-chrpath -d %{buildroot}%{_bindir}/*
-chrpath -d %{buildroot}%{_libdir}/*.0.0
 
 # Menu entries
 
@@ -357,7 +347,6 @@ rm -rf %{buildroot}
 %{_bindir}/isql
 %{_bindir}/odbcinst
 %{_bindir}/iusql
-%{_bindir}/odbc_config
 	  
 %files -n %{libname} -f libodbc-libs.filelist
 %defattr(-,root, root)
@@ -365,6 +354,7 @@ rm -rf %{buildroot}
 %files -n %{develname}
 %defattr(-,root,root)
 %doc doc/
+%_bindir/odbc_config
 %{_includedir}/*
 %{_libdir}/lib*.so
 %{_libdir}/*.la
@@ -372,6 +362,7 @@ rm -rf %{buildroot}
 %exclude %{_libdir}/lib*instQ4.so
 %exclude %{_libdir}/lib*instQ4.la
 %endif
+%multiarch %_bindir/%multiarch_platform/odbc_config
 
 %files -n %{sdevelname}
 %defattr(-,root,root)
