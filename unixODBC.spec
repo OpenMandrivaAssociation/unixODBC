@@ -11,7 +11,7 @@
 
 Name: 		unixODBC
 Version: 	2.2.14
-Release:	%mkrel 7
+Release:	%mkrel 8
 Group: 		Databases
 Summary: 	Unix ODBC driver manager and database drivers
 License: 	GPLv2+ and LGPLv2+
@@ -22,6 +22,7 @@ Patch0:		unixODBC-2.2.12-libtool.patch
 Patch1:		unixodbc-fix-external-ltdl.patch
 Patch2:		unixODBC-2.2.14-format_not_a_string_literal_and_no_format_arguments.diff
 Patch3:     unixodbc-fix-2.2.14-fix-qt-detect.patch
+Patch4:     unixODBC-2.2.14-qt4-module.patch
 BuildRequires:	autoconf2.5 >= 2.52
 BuildRequires:	autoconf
 BuildRequires:	bison 
@@ -60,24 +61,13 @@ gODBCConfig libraries.
 %endif
 
 %if %without qt_gui
-%package -n	%{libname}-qt
-Group:		System/Libraries
-Summary:	UnixODBC library, with Qt
-Provides:	%{old_libname}-qt
-Provides:	%{name}-qt
-Obsoletes:	%{old_libname}-qt
-BuildRequires:	qt4-devel
-
-%description -n	%{libname}-qt
-unixODBC inst library, Qt flavored.
-
-This has been split off from the main unixODBC libraries so you don't
-require X11 and qt if you wish to use unixODBC.
-
 %package	gui-qt
 Summary: 	ODBC configurator, Data Source browser and ODBC test tool based on Qt
 Group: 		Databases
-Requires: 	%{name} = %{version} %{name}-qt usermode usermode-consoleonly
+Requires: 	%{name} = %{version} 
+Requires:   usermode 
+Requires:   usermode-consoleonly
+Obsoletes:  %{libname}-qt
 
 %description	gui-qt
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
@@ -133,6 +123,7 @@ This package contains one GTK+ based GUI program for unixODBC: gODBCConfig
 %patch1 -p1 -b .ltdl
 %patch2 -p1 -b .format_not_a_string_literal_and_no_format_arguments
 %patch3 -p0 -b .qt4
+%patch4 -p0 -b .qt4
 
 %build
 export EGREP='grep -E'
@@ -211,12 +202,6 @@ done
 cd ..
 %endif
 
-# drill out shared libraries for gODBCConfig *sigh*
-# also drill out the Qt inst library that doesn't seem to be used at the moment
-# by anyone ATM?
-echo "%defattr(-,root,root)" > libodbc-libs.filelist
-find %{buildroot}%_libdir -name '*.so.*' | sed -e "s|%{buildroot}||g" | grep -v -e gtk -e instQ >> libodbc-libs.filelist
-
 # Menu entries
 
 # setup links for consolehelpper support to allow root System DSN config
@@ -293,8 +278,7 @@ rm -rf %{buildroot}
 %{_libdir}/lib*.so
 %{_libdir}/*.la
 %if %without qt_gui
-%exclude %{_libdir}/lib*instQ4.so
-%exclude %{_libdir}/lib*instQ4.la
+%exclude %{_libdir}/lib*Q4.*
 %endif
 %multiarch %_bindir/%multiarch_platform/odbc_config
 
@@ -304,18 +288,16 @@ rm -rf %{buildroot}
 
 %if %without qt_gui
 
-%files -n %{libname}-qt
-%defattr(-, root, root)
-%{_libdir}/lib*instQ4.so.*
-
 %files gui-qt
 %defattr(-, root, root)
 %{_bindir}/ODBCConfig*
 %{_sbindir}/ODBCConfig*
 %{_datadir}/applications/mandriva-ODBC*.desktop
+%{_libdir}/lib*Q4.*
+%exclude %{_libdir}/lib*Q4.a
 %endif
 
-%if %with qt_gui
+%if %with gui-gtk
 %files -n %{libgtkgui_name}
 %defattr(-,root, root)
 %{_libdir}/libgtk*.so.*
