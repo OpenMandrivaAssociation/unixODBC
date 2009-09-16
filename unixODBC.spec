@@ -6,29 +6,22 @@
 %define libgtkgui_name	%mklibname gtkodbcconfig %{libgtkgui_major}
 %define old_libname %mklibname %{name} 2
 
-%define qt_gui  0
-%{?_without_qt: %{expand: %%global qt_gui 0}}
-
-%define gtk_gui 0
-%{?_with_gtk: %{expand: %%global gtk_gui 1}}
+%define bcond_without qt_gui
+%define bcond_with gtk
 
 Name: 		unixODBC
 Version: 	2.2.14
-Release:	%mkrel 5
+Release:	%mkrel 7
 Group: 		Databases
 Summary: 	Unix ODBC driver manager and database drivers
 License: 	GPLv2+ and LGPLv2+
 URL: 		http://www.unixODBC.org/
 Source0:	http://www.unixodbc.org/%{name}-%{version}.tar.gz
 Source2:	odbcinst.ini
-Source3:	qt-attic.tar.bz2
-Source4:	qt-attic2.tar.bz2
-Patch1:		unixodbc-fix-compile-with-qt-3.1.1.patch
-Patch2:		unixodbc-fix-compile-with-qt-3.1.1.patch2
-Patch3:		unixODBC-2.2.12-libtool.patch
-Patch4:		unixodbc-fix-external-ltdl.patch
-Patch5:		unixODBC-2.2.14-format_not_a_string_literal_and_no_format_arguments.diff
-Patch6:		unixodbc-fix-2.2.14-fix-qt-detect.patch
+Patch0:		unixODBC-2.2.12-libtool.patch
+Patch1:		unixodbc-fix-external-ltdl.patch
+Patch2:		unixODBC-2.2.14-format_not_a_string_literal_and_no_format_arguments.diff
+Patch3:     unixodbc-fix-2.2.14-fix-qt-detect.patch
 BuildRequires:	autoconf2.5 >= 2.52
 BuildRequires:	autoconf
 BuildRequires:	bison 
@@ -39,13 +32,6 @@ BuildRequires:	byacc
 BuildRequires:	dos2unix 
 BuildRequires:	libltdl-devel
 BuildRequires:	pth-devel
-%if %{qt_gui}
-BuildRequires:	qt4-devel
-%endif
-%if %{gtk_gui}
-BuildRequires:	gnome-common
-BuildRequires:	gnome-libs-devel
-%endif
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
@@ -62,28 +48,43 @@ Obsoletes:	%{old_libname}
 %description -n	%{libname}
 unixODBC  libraries.
 
-%if %{gtk_gui}
+%if %with gtk_gui
 %package -n	%{libgtkgui_name}
 Summary:	gODBCConfig libraries
 Group: 		System/Libraries
+BuildRequires:	gnome-common
+BuildRequires:	gnome-libs-devel
 
 %description -n	%{libgtkgui_name}
 gODBCConfig libraries.
 %endif
 
-%if %{qt_gui}
+%if %without qt_gui
 %package -n	%{libname}-qt
 Group:		System/Libraries
 Summary:	UnixODBC library, with Qt
 Provides:	%{old_libname}-qt
 Provides:	%{name}-qt
 Obsoletes:	%{old_libname}-qt
+BuildRequires:	qt4-devel
 
 %description -n	%{libname}-qt
 unixODBC inst library, Qt flavored.
 
 This has been split off from the main unixODBC libraries so you don't
 require X11 and qt if you wish to use unixODBC.
+
+%package	gui-qt
+Summary: 	ODBC configurator, Data Source browser and ODBC test tool based on Qt
+Group: 		Databases
+Requires: 	%{name} = %{version} %{name}-qt usermode usermode-consoleonly
+
+%description	gui-qt
+unixODBC aims to provide a complete ODBC solution for the Linux platform.
+All programs are GPL.
+
+This package contains two Qt based GUI programs for unixODBC: 
+ODBCConfig and DataManager
 %endif
 
 %package -n	%{develname}
@@ -112,21 +113,7 @@ Obsoletes:	%{_lib}unixODBC1-static-devel < %{version}-%{release}
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
 This package contains static libraries for development.
 
-%if %{qt_gui}
-%package	gui-qt
-Summary: 	ODBC configurator, Data Source browser and ODBC test tool based on Qt
-Group: 		Databases
-Requires: 	%{name} = %{version} %{name}-qt usermode usermode-consoleonly
-
-%description	gui-qt
-unixODBC aims to provide a complete ODBC solution for the Linux platform.
-All programs are GPL.
-
-This package contains two Qt based GUI programs for unixODBC: 
-ODBCConfig and DataManager
-%endif
-
-%if %{gtk_gui}
+%if %with gtk_gui
 %package	gui-gtk
 Summary: 	ODBC configurator based on GTK+ and GTK+ widget for gnome-db
 Group:		Databases
@@ -141,29 +128,27 @@ This package contains one GTK+ based GUI program for unixODBC: gODBCConfig
 
 %prep
 
-%setup -q -a3 -a4
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1 -b .libtool
-%patch4 -p1 -b .ltdl
-%patch5 -p1 -b .format_not_a_string_literal_and_no_format_arguments
-%patch6 -p0 -b .qt
+%setup -q
+%patch0 -p1 -b .libtool
+%patch1 -p1 -b .ltdl
+%patch2 -p1 -b .format_not_a_string_literal_and_no_format_arguments
+%patch3 -p0 -b .qt4
 
 %build
 export EGREP='grep -E'
 
 # we don't need run a bogus uselless configure
 rm -rf libltdl
+# We don't need pre generated moc files from old Qt's 
+rm -f $(grep generated odbcinstQ4/*.cpp | sed -e "s,:.*,,g")
 
-libtoolize --copy --force; aclocal; automake -a; autoconf
+autoreconf -f -i
 
-%if %{qt_gui}
 export MOC=%{qt4bin}/moc
 export UIC=%{qt4bin}/uic
-%endif
 
 %configure2_5x \
-%if %{qt_gui}
+%if %without qt_gui
     --with-qt-dir=%qt4dir \
     --with-qt-libraries=%qt4lib \
     --with-qt-includes=%qt4include \
@@ -178,6 +163,7 @@ export UIC=%{qt4bin}/uic
 
 %install
 rm -rf %{buildroot} 
+
 
 export EGREP='grep -E'
 
@@ -208,7 +194,7 @@ newlink=`find usr/%{_lib} -type l -name 'libodbcpsqlS.so.*'`
 perl -pi -e "s,usr/%{_lib}/libodbcpsqlS.so,$newlink,g" %{buildroot}%{_sysconfdir}/odbcinst.ini
 popd
 
-%if %{gtk_gui}
+%if %with gtk_gui
 # gODBCConfig must be built after installing the main unixODBC parts
 cd gODBCConfig
 %configure2_5x --prefix=%{_prefix} --sysconfdir=%{_sysconfdir} --with-odbc=%{buildroot}%{_prefix}
@@ -235,18 +221,20 @@ find %{buildroot}%_libdir -name '*.so.*' | sed -e "s|%{buildroot}||g" | grep -v 
 
 # setup links for consolehelpper support to allow root System DSN config
 install -d %{buildroot}%{_sbindir}
+
+%if %with gtk_gui
 pushd %{buildroot}%{_bindir}
-%if %{qt_gui}
-ln -sf consolehelper ODBCConfig-root
-ln -s ../bin/ODBCConfig %{buildroot}%{_sbindir}/ODBCConfig-root
+	ln -sf consolehelper gODBCConfig-root
+	ln -s ../bin/gODBCConfig %{buildroot}%{_sbindir}/gODBCConfig-root
+popd
 %endif
-%if %{gtk_gui}
-ln -sf consolehelper gODBCConfig-root
-ln -s ../bin/gODBCConfig %{buildroot}%{_sbindir}/gODBCConfig-root
-%endif
+
+%if %without qt_gui
+pushd %{buildroot}%{_bindir}
+	ln -sf consolehelper ODBCConfig-root
+	ln -s ../bin/ODBCConfig %{buildroot}%{_sbindir}/ODBCConfig-root
 popd
 
-%if %{qt_gui}
 # ODBCConfig
 
 mkdir -p %{buildroot}%{_datadir}/applications
@@ -276,64 +264,10 @@ EOF
 
 %endif
 
-%if %{gtk_gui}
-# gODBCConfig
-# Put capital G in title and longtitle to shut rpmlint warnings
-%endif
-
 find doc -name Makefile\* -exec rm {} \;
 find doc -type f -exec chmod -x {} \;
 dos2unix doc/ProgrammerManual/Tutorial/index.html
 
-%if %{gtk_gui}
-%if %mdkversion < 200900
-%post -n %{libgtkgui_name} -p /sbin/ldconfig
-%endif
-
-%if %mdkversion < 200900
-%postun -n %{libgtkgui_name} -p /sbin/ldconfig
-%endif
-%endif
-
-%if %{qt_gui}
-%if %mdkversion < 200900
-%post -n %{libname}-qt -p /sbin/ldconfig
-%endif
-%if %mdkversion < 200900
-%postun -n %{libname}-qt -p /sbin/ldconfig
-%endif
-%endif
-
-%if %mdkversion < 200900
-%post -n %{libname} -p /sbin/ldconfig
-%endif
-%if %mdkversion < 200900
-%postun -n %{libname} -p /sbin/ldconfig
-%endif
-
-%if %{qt_gui}
-%if %mdkversion < 200900
-%post gui-qt
-%update_menus
-%endif
-
-%if %mdkversion < 200900
-%postun gui-qt
-%clean_menus
-%endif
-%endif
-
-%if %{gtk_gui}
-%if %mdkversion < 200900
-%post gui-gtk
-%update_menus
-%endif
-
-%if %mdkversion < 200900
-%postun gui-gtk
-%clean_menus
-%endif
-%endif
 
 %clean
 rm -rf %{buildroot} 
@@ -358,7 +292,7 @@ rm -rf %{buildroot}
 %{_includedir}/*
 %{_libdir}/lib*.so
 %{_libdir}/*.la
-%if %{qt_gui}
+%if %without qt_gui
 %exclude %{_libdir}/lib*instQ4.so
 %exclude %{_libdir}/lib*instQ4.la
 %endif
@@ -368,7 +302,8 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %{_libdir}/*.a
 
-%if %{qt_gui}
+%if %without qt_gui
+
 %files -n %{libname}-qt
 %defattr(-, root, root)
 %{_libdir}/lib*instQ4.so.*
@@ -380,7 +315,7 @@ rm -rf %{buildroot}
 %{_datadir}/applications/mandriva-ODBC*.desktop
 %endif
 
-%if %{gtk_gui}
+%if %with qt_gui
 %files -n %{libgtkgui_name}
 %defattr(-,root, root)
 %{_libdir}/libgtk*.so.*
