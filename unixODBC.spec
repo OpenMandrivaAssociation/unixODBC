@@ -64,6 +64,7 @@ gODBCConfig libraries.
 %package	gui-qt
 Summary: 	ODBC configurator, Data Source browser and ODBC test tool based on Qt
 Group: 		Databases
+BuildRequires: qt4-devel
 Requires: 	%{name} = %{version} 
 Requires:   usermode 
 Requires:   usermode-consoleonly
