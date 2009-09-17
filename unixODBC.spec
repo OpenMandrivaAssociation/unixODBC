@@ -268,8 +268,9 @@ rm -rf %{buildroot}
 %{_bindir}/odbcinst
 %{_bindir}/iusql
 	  
-%files -n %{libname} -f libodbc-libs.filelist
+%files -n %{libname}
 %defattr(-,root, root)
+%{_libdir}/lib*.so.*
 
 %files -n %{develname}
 %defattr(-,root,root)
