@@ -11,7 +11,7 @@
 
 Name: 		unixODBC
 Version: 	2.2.14
-Release:	%mkrel 8
+Release:	%mkrel 9
 Group: 		Databases
 Summary: 	Unix ODBC driver manager and database drivers
 License: 	GPLv2+ and LGPLv2+
