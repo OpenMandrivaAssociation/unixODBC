@@ -11,7 +11,7 @@
 
 Name: 		unixODBC
 Version: 	2.2.14
-Release:	%mkrel 9
+Release:	%mkrel 10
 Group: 		Databases
 Summary: 	Unix ODBC driver manager and database drivers
 License: 	GPLv2+ and LGPLv2+
@@ -65,6 +65,7 @@ gODBCConfig libraries.
 Summary: 	ODBC configurator, Data Source browser and ODBC test tool based on Qt
 Group: 		Databases
 BuildRequires: qt4-devel
+BuildRequires: qt-assistant-adp-devel
 Requires: 	%{name} = %{version} 
 Requires:   usermode 
 Requires:   usermode-consoleonly
