@@ -67,7 +67,8 @@ This package contains static libraries for development.
   --with-included-ltdl=no \
   --with-ltdl-include=%{_includedir} \
   --with-ltdl-lib=%{_libdir} \
-  --enable-static
+  --enable-static \
+  --enable-drivers
 %make
 
 %install
@@ -94,6 +95,10 @@ rm -rf %{buildroot}
 %_libdir/libodbc.so.%{LIBMAJ}*
 %_libdir/libodbccr.so.%{LIBMAJ}*
 %_libdir/libodbcinst.so.%{LIBMAJ}*
+%_libdir/libnn.so.%{LIBMAJ}*
+%_libdir/libtemplate.so.%{LIBMAJ}*
+%_libdir/libodbcpsql.so.2
+%_libdir/libodbcpsql.so.2.*
 
 %files -n %{develname}
 %defattr(-,root,root)
