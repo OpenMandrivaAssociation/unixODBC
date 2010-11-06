@@ -6,7 +6,7 @@
 
 Name: 		unixODBC
 Version: 	2.3.0
-Release:	%mkrel 1
+Release:	%mkrel 2
 Group: 		Databases
 Summary: 	Unix ODBC driver manager and database drivers
 License: 	GPLv2+ and LGPLv2+
