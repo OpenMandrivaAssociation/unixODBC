@@ -91,7 +91,9 @@ rm -rf %{buildroot}
 	  
 %files -n %{libname}
 %defattr(-,root, root)
-%{_libdir}/lib*.so.*
+%_libdir/libodbc.so.%{LIBMAJ}*
+%_libdir/libodbccr.so.%{LIBMAJ}*
+%_libdir/libodbcinst.so.%{LIBMAJ}*
 
 %files -n %{develname}
 %defattr(-,root,root)
