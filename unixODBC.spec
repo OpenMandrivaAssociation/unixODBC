@@ -6,7 +6,7 @@
 
 Name: 		unixODBC
 Version: 	2.3.0
-Release:	%mkrel 2
+Release:	%mkrel 3
 Group: 		Databases
 Summary: 	Unix ODBC driver manager and database drivers
 License: 	GPLv2+ and LGPLv2+
@@ -89,7 +89,7 @@ rm -rf %{buildroot}
 %{_bindir}/isql
 %{_bindir}/odbcinst
 %{_bindir}/iusql
-	  
+
 %files -n %{libname}
 %defattr(-,root, root)
 %_libdir/libodbc.so.%{LIBMAJ}*
@@ -107,7 +107,7 @@ rm -rf %{buildroot}
 %{_includedir}/*
 %{_libdir}/lib*.so
 %{_libdir}/*.la
-%multiarch %_bindir/%multiarch_platform/odbc_config
+%{multiarch_bindir}/odbc_config
 
 %files -n %{sdevelname}
 %defattr(-,root,root)
