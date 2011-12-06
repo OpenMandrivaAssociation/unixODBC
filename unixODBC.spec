@@ -1,23 +1,21 @@
 %define LIBMAJ 	1
 %define libname %mklibname %name %LIBMAJ
 %define develname %mklibname %name -d
-%define sdevelname %mklibname %name -d -s
 %define old_libname %mklibname %{name} 2
 
 Name: 		unixODBC
 Version: 	2.3.0
-Release:	%mkrel 3
+Release:	4
 Group: 		Databases
 Summary: 	Unix ODBC driver manager and database drivers
 License: 	GPLv2+ and LGPLv2+
 URL: 		http://www.unixODBC.org/
 Source0:	http://www.unixodbc.org/%{name}-%{version}.tar.gz
-BuildRequires:	bison 
-BuildRequires:	flex 
-BuildRequires:	readline-devel 
+BuildRequires:	bison
+BuildRequires:	flex
+BuildRequires:	readline-devel
 BuildRequires:	byacc
 BuildRequires:	libltdl-devel
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 UnixODBC is a free/open specification for providing application developers 
@@ -36,7 +34,7 @@ unixODBC  libraries.
 %package -n	%{develname}
 Summary: 	Includes and shared libraries for ODBC development
 Group: 		Development/Other
-Requires: 	%{libname} = %{version}
+Requires: 	%{libname} >= %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Obsoletes:	%{old_libname}-devel
@@ -46,19 +44,6 @@ Obsoletes:	%{_lib}unixODBC1-devel < %{version}-%{release}
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
 This package contains the include files and shared libraries for development.
 
-%package -n	%{sdevelname}
-Summary: 	Static libraries for ODBC development
-Group: 		Development/Other
-Requires: 	%{develname} = %{version}-%{release}
-Provides:	%{name}-static-devel = %{version}-%{release}
-Provides:	lib%{name}-static-devel = %{version}-%{release}
-Obsoletes:	%{name}-devel %{old_libname}-static-devel
-Obsoletes:	%{_lib}unixODBC1-static-devel < %{version}-%{release}
-
-%description -n	%{sdevelname}
-unixODBC aims to provide a complete ODBC solution for the Linux platform.
-This package contains static libraries for development.
-
 %prep
 %setup -q
 
@@ -67,23 +52,23 @@ This package contains static libraries for development.
   --with-included-ltdl=no \
   --with-ltdl-include=%{_includedir} \
   --with-ltdl-lib=%{_libdir} \
-  --enable-static \
+  --disable-static \
   --enable-drivers
 %make
 
 %install
-rm -rf %{buildroot} 
+rm -rf %{buildroot}
+
 %makeinstall_std
 
 %multiarch_binaries %buildroot/%_bindir/odbc_config
 
-%clean
-rm -rf %{buildroot} 
+# cleanup
+rm -f %{buildroot}%{_libdir}/*.*a
 
 %files 
-%defattr(-,root,root)
 %doc AUTHORS INSTALL ChangeLog NEWS README
-%config(noreplace) %verify(not md5 size mtime)  %{_sysconfdir}/odbc*.ini
+%config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/odbc*.ini
 %dir %{_sysconfdir}/ODBCDataSources
 %{_bindir}/dltest
 %{_bindir}/isql
@@ -91,7 +76,6 @@ rm -rf %{buildroot}
 %{_bindir}/iusql
 
 %files -n %{libname}
-%defattr(-,root, root)
 %_libdir/libodbc.so.%{LIBMAJ}*
 %_libdir/libodbccr.so.%{LIBMAJ}*
 %_libdir/libodbcinst.so.%{LIBMAJ}*
@@ -101,14 +85,8 @@ rm -rf %{buildroot}
 %_libdir/libodbcpsql.so.2.*
 
 %files -n %{develname}
-%defattr(-,root,root)
 %doc doc/
 %_bindir/odbc_config
 %{_includedir}/*
 %{_libdir}/lib*.so
-%{_libdir}/*.la
 %{multiarch_bindir}/odbc_config
-
-%files -n %{sdevelname}
-%defattr(-,root,root)
-%{_libdir}/*.a
