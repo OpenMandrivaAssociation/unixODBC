@@ -1,13 +1,12 @@
-%define LIBMAJ 	1
-%define libname %mklibname %name %LIBMAJ
+%define major 2
+%define libname %mklibname %name %major
 %define develname %mklibname %name -d
-%define old_libname %mklibname %{name} 2
 
-Name: 		unixODBC
-Version: 	2.3.0
-Release:	4
-Group: 		Databases
 Summary: 	Unix ODBC driver manager and database drivers
+Name: 		unixODBC
+Version: 	2.3.1
+Release:	1
+Group: 		Databases
 License: 	GPLv2+ and LGPLv2+
 URL: 		http://www.unixODBC.org/
 Source0:	http://www.unixodbc.org/%{name}-%{version}.tar.gz
@@ -23,22 +22,18 @@ with a predictable API with which to access Data Sources. Data Sources include
 SQL Servers and any Data Source with an ODBC Driver.
 
 %package -n	%{libname}
-Summary:	Libraries unixODBC 
+Summary:	Libraries unixODBC
 Group:		System/Libraries
-Provides:	%{old_libname}
-Obsoletes:	%{old_libname}
+Conflicts:	%{mklibname %{name} 1}
 
 %description -n	%{libname}
-unixODBC  libraries.
+This package contains the shared unixODBC libraries.
 
 %package -n	%{develname}
 Summary: 	Includes and shared libraries for ODBC development
 Group: 		Development/Other
 Requires: 	%{libname} >= %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Provides:	lib%{name}-devel = %{version}-%{release}
-Obsoletes:	%{old_libname}-devel
-Obsoletes:	%{_lib}unixODBC1-devel < %{version}-%{release}
 
 %description -n	%{develname}
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
@@ -76,13 +71,12 @@ rm -f %{buildroot}%{_libdir}/*.*a
 %{_bindir}/iusql
 
 %files -n %{libname}
-%_libdir/libodbc.so.%{LIBMAJ}*
-%_libdir/libodbccr.so.%{LIBMAJ}*
-%_libdir/libodbcinst.so.%{LIBMAJ}*
-%_libdir/libnn.so.%{LIBMAJ}*
-%_libdir/libtemplate.so.%{LIBMAJ}*
-%_libdir/libodbcpsql.so.2
-%_libdir/libodbcpsql.so.2.*
+%{_libdir}/libodbccr.so.%{major}*
+%{_libdir}/libodbcinst.so.%{major}*
+%{_libdir}/libodbcpsql.so.%{major}*
+%{_libdir}/libodbc.so.%{major}*
+%{_libdir}/libnn.so.1*
+%{_libdir}/libtemplate.so.1*
 
 %files -n %{develname}
 %doc doc/
