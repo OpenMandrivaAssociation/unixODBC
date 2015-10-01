@@ -4,12 +4,12 @@
 
 Summary:	Unix ODBC driver manager and database drivers
 Name:		unixODBC
-Version:	2.3.2
-Release:	5
+Version:	2.3.4
+Release:	1
 Group:		Databases
 License:	GPLv2+ and LGPLv2+
 URL:		http://www.unixODBC.org/
-Source0:	http://www.unixodbc.org/%{name}-%{version}.tar.gz
+Source0:	ftp://ftp.unixodbc.org/pub/unixODBC/%{name}-%{version}.tar.gz
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	readline-devel
@@ -42,20 +42,40 @@ This package contains the include files and shared libraries for development.
 %prep
 %setup -q
 
+chmod 0644 Drivers/MiniSQL/*.c
+chmod 0644 Drivers/nn/*.c
+chmod 0644 Drivers/template/*.c
+chmod 0644 doc/ProgrammerManual/Tutorial/*.html
+chmod 0644 doc/lst/*
+chmod 0644 include/odbcinst.h
+
 # Blow away the embedded libtool and replace with build system's libtool.
 # (We will use the installed libtool anyway, but this makes sure they match.)
-rm -rf config.guess config.sub install-sh ltmain.sh libltdl
+rm -rf config.guess config.sub install-sh ltmain.sh libltdl depcomp missing
 # this hack is so we can build with either libtool 2.2 or 1.5
-libtoolize --install || libtoolize
+libtoolize --install --copy || libtoolize --copy
+
+aclocal
+#automake --add-missing
+#autoheader
+#autoconf
+
+#sed -i 's!touch $@!!g' libltdl/Makefile.in Makefile.in
+
 
 %build
-autoreconf -fi
 %configure \
-  --with-included-ltdl=no \
   --with-ltdl-include=%{_includedir} \
+  --with-included-ltdl=no \
   --with-ltdl-lib=%{_libdir} \
+  --with-gnu-ld=yes \
+  --enable-threads=yes \
   --disable-static \
   --enable-drivers
+
+# don't touch my system files
+unlink libltdl/config-h.in
+cp -f %{_datadir}/libtool/config-h.in libltdl/config-h.in
 %make
 
 %install
@@ -75,6 +95,7 @@ mkdir -p %{buildroot}%{_sysconfdir}
 %{_bindir}/slencheck
 %{_mandir}/man1/*.1.*
 %{_mandir}/man5/*.5.*
+%{_mandir}/man7/*.7.*
 
 %files -n %{libname}
 %{_libdir}/libodbccr.so.%{major}*
