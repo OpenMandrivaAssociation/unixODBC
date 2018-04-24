@@ -4,7 +4,7 @@
 
 Summary:	Unix ODBC driver manager and database drivers
 Name:		unixODBC
-Version:	2.3.4
+Version:	2.3.6
 Release:	1
 Group:		Databases
 License:	GPLv2+ and LGPLv2+
@@ -53,7 +53,7 @@ chmod 0644 include/odbcinst.h
 # (We will use the installed libtool anyway, but this makes sure they match.)
 rm -rf config.guess config.sub install-sh ltmain.sh libltdl depcomp missing
 # this hack is so we can build with either libtool 2.2 or 1.5
-libtoolize --install --copy || libtoolize --copy
+libtoolize --install --copy --force || libtoolize --copy --force
 
 aclocal
 #automake --add-missing
@@ -82,8 +82,6 @@ cp -f %{_datadir}/libtool/config-h.in libltdl/config-h.in
 mkdir -p %{buildroot}%{_sysconfdir}
 %makeinstall_std
 
-%multiarch_binaries %{buildroot}%{_bindir}/odbc_config
-
 %files
 %doc AUTHORS INSTALL ChangeLog NEWS README
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/odbc*.ini
@@ -110,4 +108,4 @@ mkdir -p %{buildroot}%{_sysconfdir}
 %{_bindir}/odbc_config
 %{_includedir}/*
 %{_libdir}/lib*.so
-%{multiarch_bindir}/odbc_config
+%{_libdir}/pkgconfig/*.pc
