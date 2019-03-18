@@ -14,6 +14,7 @@ BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	readline-devel
 BuildRequires:	byacc
+BuildRequires:	atomic-devel
 BuildRequires:	libltdl-devel
 
 %description
