@@ -4,8 +4,8 @@
 
 Summary:	Unix ODBC driver manager and database drivers
 Name:		unixODBC
-Version:	2.3.6
-Release:	3
+Version:	2.3.7
+Release:	1
 Group:		Databases
 License:	GPLv2+ and LGPLv2+
 URL:		http://www.unixODBC.org/
@@ -41,7 +41,7 @@ unixODBC aims to provide a complete ODBC solution for the Linux platform.
 This package contains the include files and shared libraries for development.
 
 %prep
-%setup -q
+%autosetup -p1
 
 chmod 0644 Drivers/MiniSQL/*.c
 chmod 0644 Drivers/nn/*.c
@@ -63,7 +63,6 @@ aclocal
 
 #sed -i 's!touch $@!!g' libltdl/Makefile.in Makefile.in
 
-
 %build
 %configure \
   --with-ltdl-include=%{_includedir} \
@@ -77,11 +76,11 @@ aclocal
 # don't touch my system files
 unlink libltdl/config-h.in
 cp -f %{_datadir}/libtool/config-h.in libltdl/config-h.in
-%make
+%make_build
 
 %install
 mkdir -p %{buildroot}%{_sysconfdir}
-%makeinstall_std
+%make_install
 
 %files
 %doc AUTHORS INSTALL ChangeLog NEWS README
