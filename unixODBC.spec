@@ -1,11 +1,18 @@
+# unixODBC is used by wine
+%ifarch %{x86_64}
+%bcond_without compat32
+%endif
+
 %define major 2
 %define libname %mklibname %{name} %{major}
 %define develname %mklibname %{name} -d
+%define lib32name %mklib32name %{name} %{major}
+%define devel32name %mklib32name %{name} -d
 
 Summary:	Unix ODBC driver manager and database drivers
 Name:		unixODBC
 Version:	2.3.7
-Release:	1
+Release:	2
 Group:		Databases
 License:	GPLv2+ and LGPLv2+
 URL:		http://www.unixODBC.org/
@@ -16,6 +23,9 @@ BuildRequires:	readline-devel
 BuildRequires:	byacc
 BuildRequires:	atomic-devel
 BuildRequires:	libltdl-devel
+%if %{with compat32}
+BuildRequires:	devel(libltdl)
+%endif
 
 %description
 UnixODBC is a free/open specification for providing application developers 
@@ -40,6 +50,25 @@ Provides:	%{name}-devel = %{version}-%{release}
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
 This package contains the include files and shared libraries for development.
 
+%if %{with compat32}
+%package -n	%{lib32name}
+Summary:	Libraries unixODBC (32-bit)
+Group:		System/Libraries
+
+%description -n	%{lib32name}
+This package contains the shared unixODBC libraries.
+
+%package -n	%{devel32name}
+Summary: 	Includes and shared libraries for ODBC development (32-bit)
+Group: 		Development/Other
+Requires: 	%{develname} >= %{version}-%{release}
+Requires: 	%{lib32name} >= %{version}-%{release}
+
+%description -n	%{devel32name}
+unixODBC aims to provide a complete ODBC solution for the Linux platform.
+This package contains the include files and shared libraries for development.
+%endif
+
 %prep
 %autosetup -p1
 
@@ -63,24 +92,43 @@ aclocal
 
 #sed -i 's!touch $@!!g' libltdl/Makefile.in Makefile.in
 
-%build
-%configure \
-  --with-ltdl-include=%{_includedir} \
+export CONFIGURE_TOP="$(pwd)"
+%if %{with compat32}
+mkdir build32
+cd build32
+%configure32 \
   --with-included-ltdl=no \
-  --with-ltdl-lib=%{_libdir} \
   --with-gnu-ld=yes \
   --enable-threads=yes \
-  --disable-static \
   --enable-drivers
+cd ..
+%endif
+
+mkdir build
+cd build
+%configure \
+  --with-included-ltdl=no \
+  --with-gnu-ld=yes \
+  --enable-threads=yes \
+  --enable-drivers
+
+%build
 
 # don't touch my system files
 unlink libltdl/config-h.in
 cp -f %{_datadir}/libtool/config-h.in libltdl/config-h.in
-%make_build
+
+%if %{with compat32}
+%make_build -C build32
+%endif
+%make_build -C build
 
 %install
 mkdir -p %{buildroot}%{_sysconfdir}
-%make_install
+%if %{with compat32}
+%make_install -C build32
+%endif
+%make_install -C build
 
 %files
 %doc AUTHORS INSTALL ChangeLog NEWS README
@@ -109,3 +157,17 @@ mkdir -p %{buildroot}%{_sysconfdir}
 %{_includedir}/*
 %{_libdir}/lib*.so
 %{_libdir}/pkgconfig/*.pc
+
+%if %{with compat32}
+%files -n %{lib32name}
+%{_prefix}/lib/libodbccr.so.%{major}*
+%{_prefix}/lib/libodbcinst.so.%{major}*
+%{_prefix}/lib/libodbcpsql.so.%{major}*
+%{_prefix}/lib/libodbc.so.%{major}*
+%{_prefix}/lib/libnn.so.1*
+%{_prefix}/lib/libtemplate.so.1*
+
+%files -n %{devel32name}
+%{_prefix}/lib/lib*.so
+%{_prefix}/lib/pkgconfig/*.pc
+%endif
