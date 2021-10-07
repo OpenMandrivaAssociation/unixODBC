@@ -1,3 +1,5 @@
+%define _disable_rebuild_configure 1
+
 # unixODBC is used by wine
 %ifarch %{x86_64}
 %bcond_without compat32
@@ -11,7 +13,7 @@
 
 Summary:	Unix ODBC driver manager and database drivers
 Name:		unixODBC
-Version:	2.3.8
+Version:	2.3.9
 Release:	1
 Group:		Databases
 License:	GPLv2+ and LGPLv2+
@@ -79,16 +81,6 @@ chmod 0644 doc/ProgrammerManual/Tutorial/*.html
 chmod 0644 doc/lst/*
 chmod 0644 include/odbcinst.h
 
-# Blow away the embedded libtool and replace with build system's libtool.
-# (We will use the installed libtool anyway, but this makes sure they match.)
-rm -rf config.guess config.sub install-sh ltmain.sh libltdl depcomp missing
-# this hack is so we can build with either libtool 2.2 or 1.5
-libtoolize --install --copy --force || libtoolize --copy --force
-
-aclocal
-#automake --add-missing
-#autoheader
-#autoconf
 
 #sed -i 's!touch $@!!g' libltdl/Makefile.in Makefile.in
 
@@ -114,10 +106,6 @@ cd build
 
 %build
 
-# don't touch my system files
-unlink libltdl/config-h.in
-cp -f %{_datadir}/libtool/config-h.in libltdl/config-h.in
-
 %if %{with compat32}
 %make_build -C build32
 %endif
@@ -139,9 +127,9 @@ mkdir -p %{buildroot}%{_sysconfdir}
 %{_bindir}/odbcinst
 %{_bindir}/iusql
 %{_bindir}/slencheck
-%{_mandir}/man1/*.1.*
-%{_mandir}/man5/*.5.*
-%{_mandir}/man7/*.7.*
+%doc %{_mandir}/man1/*.1.*
+%doc %{_mandir}/man5/*.5.*
+%doc %{_mandir}/man7/*.7.*
 
 %files -n %{libname}
 %{_libdir}/libodbccr.so.%{major}*
