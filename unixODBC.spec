@@ -13,7 +13,7 @@
 
 Summary:	Unix ODBC driver manager and database drivers
 Name:		unixODBC
-Version:	2.3.9
+Version:	2.3.11
 Release:	1
 Group:		Databases
 License:	GPLv2+ and LGPLv2+
