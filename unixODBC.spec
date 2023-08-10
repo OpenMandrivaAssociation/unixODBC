@@ -13,12 +13,12 @@
 
 Summary:	Unix ODBC driver manager and database drivers
 Name:		unixODBC
-Version:	2.3.11
-Release:	2
+Version:	2.3.12
+Release:	1
 Group:		Databases
 License:	GPLv2+ and LGPLv2+
 URL:		http://www.unixODBC.org/
-Source0:	ftp://ftp.unixodbc.org/pub/unixODBC/%{name}-%{version}.tar.gz
+Source0:	https://github.com/lurcher/unixODBC/releases/download/%{version}/unixODBC-%{version}.tar.gz
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	readline-devel
