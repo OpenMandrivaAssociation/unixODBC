@@ -17,7 +17,7 @@ Version:	2.3.12
 Release:	1
 Group:		Databases
 License:	GPLv2+ and LGPLv2+
-URL:		http://www.unixODBC.org/
+URL:		https://www.unixODBC.org/
 Source0:	https://github.com/lurcher/unixODBC/releases/download/%{version}/unixODBC-%{version}.tar.gz
 BuildRequires:	bison
 BuildRequires:	flex
