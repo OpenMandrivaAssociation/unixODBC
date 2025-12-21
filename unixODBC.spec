@@ -19,6 +19,11 @@ Group:		Databases
 License:	GPLv2+ and LGPLv2+
 URL:		https://www.unixODBC.org/
 Source0:	https://github.com/lurcher/unixODBC/releases/download/%{version}/unixODBC-%{version}.tar.gz
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	readline-devel
